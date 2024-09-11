@@ -38,6 +38,8 @@ dependencies:
   geolocator: ^11.1.0
   camera: ^0.10.5+9
   flutter_image_compress: ^2.3.0
+  image: ^4.2.0
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
