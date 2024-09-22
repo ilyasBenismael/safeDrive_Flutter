@@ -6,9 +6,9 @@ import 'package:image/image.dart' as img;
 
 
 class CameraService {
+
   late CameraController _cameraController;
   Timer? _timer;
-
 
 
 /////////////////////////////////////////////// SETUP CAMERA ////////////////////////////////////////////////////
@@ -37,42 +37,31 @@ class CameraService {
   }
 
 
+///////////////////////////////////////////// IMAGE CAPTURE ////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////// IMAGE CAPTURE ////////////////////////////////////////////////////
-
-
-  //the onImageCaptured() is a mthd we called from frontend that gets executed in this timer
-  void startImageCapture(Function(Uint8List) onImageCaptured) {
-    //after the setup is good wa make this timer that takes a pic, compress it then use it
-    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
-      try {
-        final image = await _cameraController.takePicture();
-        Uint8List? compressedImage = await _compressImage(image);
-        if (compressedImage != null) {
-          Uint8List cubicImage = await makeImageCubic(compressedImage);
-          onImageCaptured(cubicImage);
-        }
+//we capture image, compress it, make it cubic, and turn it back in the imagecptured function
+  void captureImage(Function(Uint8List) onImageCaptured) async {
+    try {
+      final image = await _cameraController.takePicture();
+      Uint8List? bitesImage = await _compressImage(image);
+      Uint8List cubicImage = await makeImageCubic(bitesImage!);
+      onImageCaptured(cubicImage);
       } catch (e) {
-        print("Error taking picture: $e");
-      }
-    });
+      print("Error taking picture: $e");
+    }
   }
 
 
-
-
-
-
-  ///////////////////////////////////////////// COMPRESS IMAGE ////////////////////////////////////////////////////
-
+///////////////////////////////////////////// COMPRESS IMAGE ////////////////////////////////////////////////////
 
   Future<Uint8List?> _compressImage(XFile image) async {
     Uint8List? compressedImage = await FlutterImageCompress.compressWithFile(
       image.path,
-      quality: 50,
+      quality: 70,
     );
     return compressedImage;
   }
+
 
 
 
@@ -83,9 +72,8 @@ class CameraService {
   }
 
 
-
   // Function to crop the image to a square (cubic)
-  Future<Uint8List> makeImageCubic(Uint8List imageBytes) async {
+  Uint8List makeImageCubic(Uint8List imageBytes)  {
     // Decode the image from bytes
     img.Image? originalImage = img.decodeImage(imageBytes);
 
@@ -117,7 +105,6 @@ class CameraService {
 
     return cubicImageBytes;
   }
-
 
 
 }
